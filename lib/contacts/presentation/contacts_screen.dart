@@ -78,6 +78,13 @@ class ContactsScreen extends GetView<ContactsController> {
             leading: const Icon(Icons.person, color: Colors.blue),
             title: Text(name),
             subtitle: Text(phone),
+
+            trailing: IconButton(
+              onPressed: () {
+                controller.makeCall(phone);
+              },
+              icon: Icon(Icons.call),
+            ),
           );
         },
       ),

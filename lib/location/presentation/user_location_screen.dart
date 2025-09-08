@@ -9,11 +9,10 @@ class UserLocationScreen extends GetView<UserLocationController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
 
       appBar: AppBar(
-        title: Text("User Location"),
+        title: const Text("User Location"),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
@@ -31,24 +30,27 @@ class UserLocationScreen extends GetView<UserLocationController> {
   Widget requestPermission() {
     return ElevatedButton(
       onPressed: controller.requestLocationPermission,
-      child: Text("Request location permission"),
+      child: const Text("Request location permission"),
     );
   }
 
   Widget userCurrentLocation() {
-    controller.getUserLocation();
     return Obx(
       () => Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        spacing: 16,
-
         children: [
-          Text("Location permission is granted "),
-
+          const Text("Location permission is granted"),
+          const SizedBox(height: 16),
           Text(controller.currentCoordinates.value),
-
+          const SizedBox(height: 8),
           Text(controller.currentAddress.value),
+
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: controller.openGoogleMaps,
+            child: Text("Open Map"),
+          ),
         ],
       ),
     );

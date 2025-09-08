@@ -1,6 +1,7 @@
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ContactsController extends GetxController {
   final contactsPermission = Permission.contacts;
@@ -23,7 +24,7 @@ class ContactsController extends GetxController {
   Future<void> requestContactPermission() async {
     if (await contactsPermission.isPermanentlyDenied) {
       openAppSettings();
-    } else if(await contactsPermission.isDenied){
+    } else if (await contactsPermission.isDenied) {
       final status = await contactsPermission.request();
       isContactPermissionGranted.value = status.isGranted;
 
@@ -31,7 +32,6 @@ class ContactsController extends GetxController {
         await readContactsList();
       }
     }
-
   }
 
   /// Read all contacts and save to allContacts list
@@ -50,5 +50,12 @@ class ContactsController extends GetxController {
 
       allContacts.add({"name": name, "phone": phone});
     }
+  }
+
+  Future<void> makeCall(String contact) async {
+    Uri callUri = Uri(scheme: "tel", path: contact);
+
+    await launchUrl(callUri);
+
   }
 }

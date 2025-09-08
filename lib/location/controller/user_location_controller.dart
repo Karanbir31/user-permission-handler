@@ -2,6 +2,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UserLocationController extends GetxController {
   final locationPermission = Permission.locationWhenInUse;
@@ -14,11 +15,10 @@ class UserLocationController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
-    // Check existing permission
     isLocationPermissionGranted.value = await locationPermission.isGranted;
 
     if (isLocationPermissionGranted.value) {
-      await getUserLocation();
+      await getUserLocation(); // only once
     }
   }
 
@@ -71,4 +71,23 @@ class UserLocationController extends GetxController {
     currentAddress.value =
         "${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
   }
+
+  Future<void> openGoogleMaps() async {
+    if (position == null) return;
+
+    final Uri googleMapsUri = Uri.parse(
+      "geo:${position!.latitude},${position!.longitude}?q=${position!.latitude},${position!.longitude}",
+    );
+
+    if (await canLaunchUrl(googleMapsUri)) {
+      await launchUrl(googleMapsUri, mode: LaunchMode.externalApplication);
+    } else {
+      // fallback to browser
+      final Uri browserUri = Uri.parse(
+        "https://www.google.com/maps/search/?api=1&query=${position!.latitude},${position!.longitude}",
+      );
+      await launchUrl(browserUri, mode: LaunchMode.externalApplication);
+    }
+  }
+
 }
