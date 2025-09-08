@@ -3,38 +3,55 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class UserLocationController extends GetxController {
-  var locationPermission = Permission.locationWhenInUse;
+  final locationPermission = Permission.locationWhenInUse;
 
   RxBool isLocationPermissionGranted = false.obs;
-
   RxString userCurrentLocation = "".obs;
 
   @override
   Future<void> onInit() async {
     super.onInit();
+    // Check existing permission
+    isLocationPermissionGranted.value = await locationPermission.isGranted;
 
-    isLocationPermissionGranted.value =
-        await locationPermission.status.isGranted;
+    if (isLocationPermissionGranted.value) {
+      await getUserLocation();
+    }
   }
 
+  /// Request location permission dynamically
   Future<void> requestLocationPermission() async {
-    if (await locationPermission.isDenied) {
-      final result = await locationPermission.request();
-
-      isLocationPermissionGranted.value = result.isGranted;
+    if (await locationPermission.isPermanentlyDenied) {
+      await openAppSettings();
+    } else if (await locationPermission.isDenied) {
+      final status = await locationPermission.request();
+      isLocationPermissionGranted.value = status.isGranted;
 
       if (isLocationPermissionGranted.value) {
-        getUserLocation();
+        await getUserLocation();
       }
     }
   }
 
+  /// Fetch current user location
   Future<void> getUserLocation() async {
+    if (!isLocationPermissionGranted.value) return;
+
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      userCurrentLocation.value = "Location services are disabled.";
+      return;
+    }
+
+    // Get current position
     Position position = await Geolocator.getCurrentPosition(
-      locationSettings: LocationSettings(accuracy: LocationAccuracy.best),
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.best,
+      ),
     );
 
     userCurrentLocation.value =
-        "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+    "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
   }
 }
