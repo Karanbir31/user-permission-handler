@@ -20,7 +20,7 @@ class UserLocationScreen extends GetView<UserLocationController> {
 
       body: SafeArea(
         child: Obx(
-              () => controller.isLocationPermissionGranted.value
+          () => controller.isLocationPermissionGranted.value
               ? Center(child: userCurrentLocation())
               : Center(child: requestPermission()),
         ),
@@ -38,8 +38,18 @@ class UserLocationScreen extends GetView<UserLocationController> {
   Widget userCurrentLocation() {
     controller.getUserLocation();
     return Obx(
-          () => Text(
-        "Location permission is granted \n${controller.userCurrentLocation.value}",
+      () => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: 16,
+
+        children: [
+          Text("Location permission is granted "),
+
+          Text(controller.currentCoordinates.value),
+
+          Text(controller.currentAddress.value),
+        ],
       ),
     );
   }

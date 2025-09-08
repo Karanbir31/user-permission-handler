@@ -1,3 +1,4 @@
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -6,7 +7,9 @@ class UserLocationController extends GetxController {
   final locationPermission = Permission.locationWhenInUse;
 
   RxBool isLocationPermissionGranted = false.obs;
-  RxString userCurrentLocation = "".obs;
+  RxString currentCoordinates = "".obs;
+  RxString currentAddress = "".obs;
+  Position? position;
 
   @override
   Future<void> onInit() async {
@@ -40,18 +43,32 @@ class UserLocationController extends GetxController {
     // Check if location services are enabled
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      userCurrentLocation.value = "Location services are disabled.";
+      currentCoordinates.value = "Location services are disabled.";
       return;
     }
 
     // Get current position
-    Position position = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.best,
-      ),
+    position = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(accuracy: LocationAccuracy.best),
     );
 
-    userCurrentLocation.value =
-    "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+    currentCoordinates.value =
+        "Latitude: ${position!.latitude}, Longitude: ${position!.longitude}";
+
+    getCurrentAddress();
+  }
+
+  Future<void> getCurrentAddress() async {
+    if (position == null) return;
+
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position!.latitude,
+      position!.longitude,
+    );
+
+    Placemark place = placemarks[0];
+
+    currentAddress.value =
+        "${place.subLocality}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
   }
 }
