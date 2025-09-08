@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:userpermission/contacts/controller/contacts_controller.dart';
 
+import '../../main.dart';
+
 class ContactsScreen extends GetView<ContactsController> {
   const ContactsScreen({super.key});
 
@@ -15,26 +17,19 @@ class ContactsScreen extends GetView<ContactsController> {
         title: Text("All Contacts"),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
-      ),
 
-      body: SafeArea(
-        child: Obx(
-          () => controller.isLocationPermissionGranted.value
-              ? Center(child: userCurrentLocation())
-              : Center(child: requestPermission()),
-        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: IconButton(
+              onPressed: () {
+                Get.toNamed(NavRoutes.locationRoute);
+              },
+              icon: Icon(Icons.location_history),
+            ),
+          ),
+        ],
       ),
     );
-  }
-
-  Widget requestPermission() {
-    return ElevatedButton(
-      onPressed: controller.requestLocationPermission,
-      child: Text("Request location permission"),
-    );
-  }
-
-  Widget userCurrentLocation() {
-    return Text("Location permission is granted");
   }
 }
